@@ -13,39 +13,46 @@ then
 #	- The client code consists of two parts: (1) an Overt User Simulator (OUS) that issues repeated requests to uncensored sites, and (2) a SOCKS proxy frontend that takes connection requests and data from the user's browser and feeds it to the OUS.
 #
 #0. Building this system requires the following dependencies:
-	sudo apt-get install build-essential g++ flex bison gperf ruby perl \
-	  libsqlite3-dev libfontconfig1-dev libicu-dev libfreetype6 libssl-dev \
-	    libpng-dev libjpeg-dev python libx11-dev libxext-dev git
+```
+sudo apt-get install build-essential g++ flex bison gperf ruby perl \
+libsqlite3-dev libfontconfig1-dev libicu-dev libfreetype6 libssl-dev \
+libpng-dev libjpeg-dev python libx11-dev libxext-dev git
+```    
 
 #1. Fetch all necessary git repositories:
-        mkdir client
-        cd client
-	git clone git://git-crysp.uwaterloo.ca/slitheen
-	git clone -b slitheen git://git-crysp.uwaterloo.ca/openssl
-	git clone -b slitheen git://git-crysp.uwaterloo.ca/phantomjs
+```
+mkdir client
+cd client
+git clone git://git-crysp.uwaterloo.ca/slitheen
+git clone -b slitheen git://git-crysp.uwaterloo.ca/openssl
+git clone -b slitheen git://git-crysp.uwaterloo.ca/phantomjs
+```
 
 #2. Build our modified version of openssl
-        parent_dir=`pwd`
-	cd openssl
-	./config --prefix=$parent_dir/sslout --openssldir=$parent_dir/sslout/openssl
-	make
-	make test
-	make install
-	cd ..
-
+```
+parent_dir=$(pwd)
+cd openssl
+./config --prefix=$parent_dir/sslout --openssldir=$parent_dir/sslout/openssl
+make
+make test
+make install
+cd ..
+```
 #3. Build phantomJS (Note: this takes a ridiculously long time)
-	cd phantomjs
-        sed -i "s#sslout#$parent_dir/sslout#g" build.py
-	./build.py
-	cp bin/phantomjs ../slitheen/client
-        cd ..
-
+```
+cd phantomjs
+sed -i "s#sslout#$parent_dir/sslout#g" build.py
+./build.py
+cp bin/phantomjs ../slitheen/client
+cd ..
+```
 #4. Build SOCKS proxy frontend
-        cd slitheen/client
-        make
-        
+```
+cd slitheen/client
+make
+```        
 #5. Run socks and exit to initialize OUS_out pipe
-        ./socks
+        `./socks`
 	
 #6. Obtain public key from relay station save file as pubkey in client/ directory
 
@@ -56,36 +63,40 @@ then
 #For the relay station:
 
 #0. Install dependencies
-	sudo apt-get install libpcap-dev libssl-dev git
+	`sudo apt-get install libpcap-dev libssl-dev git`
 
 #1. Fetch necessary git repository:
-	git clone git://git-crysp.uwaterloo.ca/slitheen
-	git clone -b slitheen git://git-crysp.uwaterloo.ca/openssl
-
+```
+git clone git://git-crysp.uwaterloo.ca/slitheen
+git clone -b slitheen git://git-crysp.uwaterloo.ca/openssl
+```
 #2. Build our modified version of openssl
-        parent_dir=`pwd`
-	cd openssl
-	./config --prefix=$parent_dir/sslout --openssldir=$parent_dir/sslout/openssl
-	make
-	make test
-	make install
-        cp ../sslout/lib/*.a ../slitheen/relay_station
-	cd ..
-
+```
+parent_dir=$(pwd)
+cd openssl
+./config --prefix=$parent_dir/sslout --openssldir=$parent_dir/sslout/openssl
+make
+make test
+make install
+cp ../sslout/lib/*.a ../slitheen/relay_station
+cd ..
+```
 #3. Generate public/private key pair
-	cd slitheen/telex-tag-v3
-	make
-	./genkeys
-	cp privkey ../relay_station
-	cd ..
-
+```
+cd slitheen/telex-tag-v3
+make
+./genkeys
+cp privkey ../relay_station
+cd ..
+```
 #4. Update slitheen.h with correct MAC addresses for client-side and world-side interfaces
 #    If using VM setup, postpone until VM step 10.
 
 #5. Build slitheen proxy
-	cd relay_station
-	make
-
+```
+cd relay_station
+make
+```
 else 
     echo "Usage: ./INSTALL [client|relay]"
 
